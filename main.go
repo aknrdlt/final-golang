@@ -1,37 +1,12 @@
 package main
 
 import (
-	"final/controller"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/julienschmidt/httprouter"
-	"gopkg.in/mgo.v2"
 	"net/http"
 	"os"
 	"time"
 )
-
-var (
-	router = gin.Default()
-)
-
-func main() {
-
-	r := httprouter.New()
-	uc := controller.NewUserController(getSession())
-	r.GET("/user/:id", uc.GetUser)
-	r.POST("/user", uc.CreateUser)
-	r.DELETE("/user/:id", uc.DeleteUser)
-}
-
-func getSession() *mgo.Session {
-
-	s, err := mgo.Dial("mongodb://localhost:27017")
-	if err != nil {
-		panic(err)
-	}
-	return s
-}
 
 type User struct {
 	ID       uint64 `json:"id"`
