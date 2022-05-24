@@ -12,7 +12,7 @@ type good struct {
 	createOn time.Time
 }
 
-func New(ID string, Name string, Type string) *good {
+func NewGood(ID string, Name string, Type string) *good {
 	g := new(good)
 	g.ID = ID
 	g.Name = Name
