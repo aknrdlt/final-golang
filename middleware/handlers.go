@@ -51,20 +51,20 @@ func createConnection() *sql.DB {
 }
 
 // CreateUser create a user in the postgres db
-func CreateUser(w http.ResponseWriter, r *http.Request) {
+func CreateBook(w http.ResponseWriter, r *http.Request) {
 
 	// create an empty user of type models.User
-	var user models.User
+	var book models.Book
 
 	// decode the json request to user
-	err := json.NewDecoder(r.Body).Decode(&user)
+	err := json.NewDecoder(r.Body).Decode(&book)
 
 	if err != nil {
 		log.Fatalf("Unable to decode the request body.  %v", err)
 	}
 
 	// call insert user function and pass the user
-	insertID := insertUser(user)
+	insertID := insertUser(book)
 
 	// format a response object
 	res := response{
@@ -114,7 +114,7 @@ func GetAllUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // UpdateUser update user's detail in the postgres db
-func UpdateUser(w http.ResponseWriter, r *http.Request) {
+func UpdateBook(w http.ResponseWriter, r *http.Request) {
 
 	// get the userid from the request params, key is "id"
 	params := mux.Vars(r)
@@ -127,7 +127,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// create an empty user of type models.User
-	var user models.User
+	var user models.Book
 
 	// decode the json request to user
 	err = json.NewDecoder(r.Body).Decode(&user)
@@ -153,7 +153,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // DeleteUser delete user's detail in the postgres db
-func DeleteUser(w http.ResponseWriter, r *http.Request) {
+func DeleteBook(w http.ResponseWriter, r *http.Request) {
 
 	// get the userid from the request params, key is "id"
 	params := mux.Vars(r)
@@ -183,7 +183,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 //------------------------- handler functions ----------------
 // insert one user in the DB
-func insertUser(user models.User) int64 {
+func insertUser(book models.Book) int64 {
 
 	// create the postgres db connection
 	db := createConnection()
@@ -200,7 +200,7 @@ func insertUser(user models.User) int64 {
 
 	// execute the sql statement
 	// Scan function will save the insert id in the id
-	err := db.QueryRow(sqlStatement, user.Name, user.Location, user.Age).Scan(&id)
+	err := db.QueryRow(sqlStatement, book.Title, book.Author, book.Year).Scan(&id)
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
@@ -213,7 +213,7 @@ func insertUser(user models.User) int64 {
 }
 
 // get one user from the DB by its userid
-func getUser(id int64) (models.User, error) {
+func getUser(id int64) (models.Book, error) {
 	// create the postgres db connection
 	db := createConnection()
 
@@ -221,7 +221,7 @@ func getUser(id int64) (models.User, error) {
 	defer db.Close()
 
 	// create a user of models.User type
-	var user models.User
+	var user models.Book
 
 	// create the select sql query
 	sqlStatement := `SELECT * FROM users WHERE userid=$1`
@@ -230,7 +230,7 @@ func getUser(id int64) (models.User, error) {
 	row := db.QueryRow(sqlStatement, id)
 
 	// unmarshal the row object to user
-	err := row.Scan(&user.ID, &user.Name, &user.Age, &user.Location)
+	err := row.Scan(&user.ID, &user.Title, &user.Year, &user.Author)
 
 	switch err {
 	case sql.ErrNoRows:
@@ -247,14 +247,14 @@ func getUser(id int64) (models.User, error) {
 }
 
 // get one user from the DB by its userid
-func getAllUsers() ([]models.User, error) {
+func getAllUsers() ([]models.Book, error) {
 	// create the postgres db connection
 	db := createConnection()
 
 	// close the db connection
 	defer db.Close()
 
-	var users []models.User
+	var users []models.Book
 
 	// create the select sql query
 	sqlStatement := `SELECT * FROM users`
@@ -271,10 +271,10 @@ func getAllUsers() ([]models.User, error) {
 
 	// iterate over the rows
 	for rows.Next() {
-		var user models.User
+		var user models.Book
 
 		// unmarshal the row object to user
-		err = rows.Scan(&user.ID, &user.Name, &user.Age, &user.Location)
+		err = rows.Scan(&user.ID, &user.Title, &user.Year, &user.Author)
 
 		if err != nil {
 			log.Fatalf("Unable to scan the row. %v", err)
@@ -290,7 +290,7 @@ func getAllUsers() ([]models.User, error) {
 }
 
 // update user in the DB
-func updateUser(id int64, user models.User) int64 {
+func updateUser(id int64, user models.Book) int64 {
 
 	// create the postgres db connection
 	db := createConnection()
@@ -302,7 +302,7 @@ func updateUser(id int64, user models.User) int64 {
 	sqlStatement := `UPDATE users SET name=$2, location=$3, age=$4 WHERE userid=$1`
 
 	// execute the sql statement
-	res, err := db.Exec(sqlStatement, id, user.Name, user.Location, user.Age)
+	res, err := db.Exec(sqlStatement, id, user.Title, user.Author, user.Year)
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
