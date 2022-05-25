@@ -1,9 +1,9 @@
 package models
 
 // User schema of the user table
-type User struct {
-	ID       int64  `json:"id"`
-	Name     string `json:"name"`
-	Location string `json:"location"`
-	Age      int64  `json:"age"`
+type Book struct {
+	ID     int64  `json:"id"`
+	Title  string `json:"name"`
+	Author string `json:"location"`
+	Year   int64  `json:"age"`
 }
