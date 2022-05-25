@@ -5,4 +5,4 @@ WORKDIR /go/src/work
 ADD . /go/src/work
 
 RUN go get -u github.com/gin-gonic/gin
-CMD go run main.go
+CMD go run cmd/app/main.go
