@@ -50,7 +50,7 @@ func createConnection() *sql.DB {
 	return db
 }
 
-// CreateUser create a user in the postgres db
+// CreateBook create a user in the postgres db
 func CreateBook(w http.ResponseWriter, r *http.Request) {
 
 	// create an empty user of type models.User
@@ -64,7 +64,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call insert user function and pass the user
-	insertID := insertUser(book)
+	insertID := insertBook(book)
 
 	// format a response object
 	res := response{
@@ -77,7 +77,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetUser will return a single user by its id
-func GetUser(w http.ResponseWriter, r *http.Request) {
+func GetBook(w http.ResponseWriter, r *http.Request) {
 	// get the userid from the request params, key is "id"
 	params := mux.Vars(r)
 
@@ -89,7 +89,7 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call the getUser function with user id to retrieve a single user
-	user, err := getUser(int64(id))
+	user, err := getBook(int64(id))
 
 	if err != nil {
 		log.Fatalf("Unable to get user. %v", err)
@@ -100,10 +100,10 @@ func GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetAllUser will return all the users
-func GetAllUser(w http.ResponseWriter, r *http.Request) {
+func GetAllBook(w http.ResponseWriter, r *http.Request) {
 
 	// get all the users in the db
-	users, err := getAllUsers()
+	users, err := getAllBooks()
 
 	if err != nil {
 		log.Fatalf("Unable to get all user. %v", err)
@@ -137,7 +137,7 @@ func UpdateBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call update user to update the user
-	updatedRows := updateUser(int64(id), user)
+	updatedRows := updateBook(int64(id), user)
 
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", updatedRows)
@@ -166,7 +166,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// call the deleteUser, convert the int to int64
-	deletedRows := deleteUser(int64(id))
+	deletedRows := deleteBook(int64(id))
 
 	// format the message string
 	msg := fmt.Sprintf("User updated successfully. Total rows/record affected %v", deletedRows)
@@ -183,7 +183,7 @@ func DeleteBook(w http.ResponseWriter, r *http.Request) {
 
 //------------------------- handler functions ----------------
 // insert one user in the DB
-func insertUser(book models.Book) int64 {
+func insertBook(book models.Book) int64 {
 
 	// create the postgres db connection
 	db := createConnection()
@@ -193,7 +193,7 @@ func insertUser(book models.Book) int64 {
 
 	// create the insert sql query
 	// returning userid will return the id of the inserted user
-	sqlStatement := `INSERT INTO users (name, location, age) VALUES ($1, $2, $3) RETURNING userid`
+	sqlStatement := `INSERT INTO books (title, author, year) VALUES ($1, $2, $3) RETURNING bookid`
 
 	// the inserted id will store in this id
 	var id int64
@@ -213,7 +213,7 @@ func insertUser(book models.Book) int64 {
 }
 
 // get one user from the DB by its userid
-func getUser(id int64) (models.Book, error) {
+func getBook(id int64) (models.Book, error) {
 	// create the postgres db connection
 	db := createConnection()
 
@@ -221,76 +221,70 @@ func getUser(id int64) (models.Book, error) {
 	defer db.Close()
 
 	// create a user of models.User type
-	var user models.Book
+	var book models.Book
 
 	// create the select sql query
-	sqlStatement := `SELECT * FROM users WHERE userid=$1`
+	sqlStatement := `SELECT * FROM books WHERE bookid=$1`
 
 	// execute the sql statement
 	row := db.QueryRow(sqlStatement, id)
 
 	// unmarshal the row object to user
-	err := row.Scan(&user.ID, &user.Title, &user.Year, &user.Author)
+	err := row.Scan(&book.ID, &book.Title, &book.Year, &book.Author)
 
 	switch err {
 	case sql.ErrNoRows:
 		fmt.Println("No rows were returned!")
-		return user, nil
+		return book, nil
 	case nil:
-		return user, nil
+		return book, nil
 	default:
 		log.Fatalf("Unable to scan the row. %v", err)
 	}
 
 	// return empty user on error
-	return user, err
+	return book, err
 }
 
 // get one user from the DB by its userid
-func getAllUsers() ([]models.Book, error) {
-	// create the postgres db connection
+func getAllBooks() ([]models.Book, error) {
+
 	db := createConnection()
 
-	// close the db connection
 	defer db.Close()
 
-	var users []models.Book
+	var books []models.Book
 
-	// create the select sql query
-	sqlStatement := `SELECT * FROM users`
+	sqlStatement := `SELECT * FROM books`
 
-	// execute the sql statement
 	rows, err := db.Query(sqlStatement)
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
 	}
 
-	// close the statement
 	defer rows.Close()
 
-	// iterate over the rows
+
 	for rows.Next() {
 		var user models.Book
 
-		// unmarshal the row object to user
+
 		err = rows.Scan(&user.ID, &user.Title, &user.Year, &user.Author)
 
 		if err != nil {
 			log.Fatalf("Unable to scan the row. %v", err)
 		}
 
-		// append the user in the users slice
-		users = append(users, user)
+		
+		books = append(books, user)
 
 	}
 
-	// return empty user on error
-	return users, err
+	return books, err
 }
 
-// update user in the DB
-func updateUser(id int64, user models.Book) int64 {
+func updateBook(id int64, book models.Book) int64 {
 
 	// create the postgres db connection
 	db := createConnection()
@@ -299,10 +293,10 @@ func updateUser(id int64, user models.Book) int64 {
 	defer db.Close()
 
 	// create the update sql query
-	sqlStatement := `UPDATE users SET name=$2, location=$3, age=$4 WHERE userid=$1`
+	sqlStatement := `UPDATE books SET title=$2, author=$3, year=$4 WHERE bookid=$1`
 
 	// execute the sql statement
-	res, err := db.Exec(sqlStatement, id, user.Title, user.Author, user.Year)
+	res, err := db.Exec(sqlStatement, id, book.Title, book.Author, book.Year)
 
 	if err != nil {
 		log.Fatalf("Unable to execute the query. %v", err)
@@ -321,7 +315,7 @@ func updateUser(id int64, user models.Book) int64 {
 }
 
 // delete user in the DB
-func deleteUser(id int64) int64 {
+func deleteBook(id int64) int64 {
 
 	// create the postgres db connection
 	db := createConnection()
@@ -330,7 +324,7 @@ func deleteUser(id int64) int64 {
 	defer db.Close()
 
 	// create the delete sql query
-	sqlStatement := `DELETE FROM users WHERE userid=$1`
+	sqlStatement := `DELETE FROM books WHERE bookid=$1`
 
 	// execute the sql statement
 	res, err := db.Exec(sqlStatement, id)
