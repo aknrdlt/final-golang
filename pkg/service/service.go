@@ -1,7 +1,7 @@
 package service
 
 import (
-	library "github.com/aknrdlt/final-golang/"
+	library "github.com/aknrdlt/final-golang"
 	"github.com/aknrdlt/final-golang/pkg/repository"
 )
 
@@ -16,7 +16,7 @@ type Book interface {
 	GetAll(userId int) ([]library.Book, error)
 	GetById(userId, bookId int) (library.Book, error)
 	Delete(userId, bookId int) error
-	Update(userId, bookId int, input library.Book) error
+	Update(userId, bookId int, input library.UpdateBook) error
 }
 
 type Service struct {

@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
-	library "github.com/zhashkevych/todo-app"
-	"github.com/zhashkevych/todo-app/pkg/handler"
-	"github.com/zhashkevych/todo-app/pkg/repository"
-	"github.com/zhashkevych/todo-app/pkg/service"
+	library "github.com/aknrdlt/final-golang"
+	"github.com/aknrdlt/final-golang/pkg/handler"
+	"github.com/aknrdlt/final-golang/pkg/repository"
+	"github.com/aknrdlt/final-golang/pkg/service"
 	"os"
 	"os/signal"
 	"syscall"

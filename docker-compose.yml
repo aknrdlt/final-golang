@@ -1,9 +1,9 @@
 version: '3.8'
 
 services:
-  todo-app:
+  final:
     build: ./
-    command: ./wait-for-postgres.sh db ./todo-app
+    command: ./wait-for-postgres.sh db ./final
     ports:
       - 8005:8005
     depends_on:

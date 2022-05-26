@@ -24,7 +24,7 @@ func (r *BookPostgres) Create(userId int, book library.Book) (int, error) {
 
 	var id int
 	createListQuery := fmt.Sprintf("INSERT INTO %s (title, author) VALUES ($1, $2) RETURNING id", booksTable)
-	row := tx.QueryRow(createListQuery, book.Title, book.Description)
+	row := tx.QueryRow(createListQuery, book.Title, book.Author)
 	if err := row.Scan(&id); err != nil {
 		tx.Rollback()
 		return 0, err
@@ -44,7 +44,7 @@ func (r *BookPostgres) GetAll(userId int) ([]library.Book, error) {
 	var books []library.Book
 
 	query := fmt.Sprintf("SELECT b.id, b.title, b.author FROM %s b INNER JOIN %s ul on b.id = ul.book_id WHERE ul.user_id = $1",
-		booksTable, createTable)
+		booksTable, clientsTable)
 	err := r.db.Select(&books, query, userId)
 
 	return books, err
@@ -88,7 +88,7 @@ func (r *BookPostgres) Update(userId, bookId int, input library.UpdateBook) erro
 	setQuery := strings.Join(setValues, ", ")
 
 	query := fmt.Sprintf("UPDATE %s tl SET %s FROM %s ul WHERE tl.id = ul.book_id AND ul.book_id=$%d AND ul.user_id=$%d",
-		todoListsTable, setQuery, usersListsTable, argId, argId+1)
+		booksTable, setQuery, clientsTable, argId, argId+1)
 	args = append(args, bookId, userId)
 
 	logrus.Debugf("updateQuery: %s", query)

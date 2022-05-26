@@ -89,7 +89,7 @@ func (h *Handler) updateBook(c *gin.Context) {
 		return
 	}
 
-	var input library.UpdateBookInput
+	var input library.UpdateBook
 	if err := c.BindJSON(&input); err != nil {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
