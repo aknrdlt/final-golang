@@ -1,8 +1,19 @@
-FROM golang:latest
+FROM golang:1.14-buster
 
-RUN mkdir /go/src/work
-WORKDIR /go/src/work
-ADD . /go/src/work
+RUN go version
+ENV GOPATH=/
 
-RUN go get -u github.com/gin-gonic/gin
-CMD go run cmd/app/main.go
+COPY ./ ./
+
+# install psql
+RUN apt-get update
+RUN apt-get -y install postgresql-client
+
+# make wait-for-postgres.sh executable
+RUN chmod +x wait-for-postgres.sh
+
+# build go app
+RUN go mod download
+RUN go build -o todo-app ./cmd/main.go
+
+CMD ["./todo-app"]
